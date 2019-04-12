@@ -31,7 +31,7 @@ class IroWidget extends InputWidget
     public $clientOptions = [];
 
     /**
-     * @var int width of the iro colorpicker in pixels
+     * @var int width of the iro color picker in pixels
      */
     public $width = 300;
 
