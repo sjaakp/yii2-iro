@@ -17,7 +17,7 @@ A demonstration of **Yii2-iro** is [here](http://www.sjaakpriester.nl/software/i
 ## Installation ##
 
 Install **yii2-iro** in the usual way with [Composer](https://getcomposer.org/). 
-Either add the following to the require section of your `composer.json` file:
+Add the following to the require section of your `composer.json` file:
 
 `"sjaakp/yii2-iro": "*"` 
 
@@ -37,13 +37,13 @@ Use **yii2-iro** just like you would use any other a [`InputWidget`](https://www
 	    use sjaakp\iro\IroWidget;
 	?>
     ...
-    <?php $form = ActiveForm::begin([]); ?>
+    <?php $form = ActiveForm::begin([
+        // ...options...
+    ]); ?>
     
         <?= $form->field($model, 'name') ?>
         
-        <?= $form->field($model, 'favourite_color')->widget([
-            'width' => 240
-        ]) ?>
+        <?= $form->field($model, 'favourite_color')->widget() ?>
         ?>
         ...
 	
@@ -51,7 +51,7 @@ Use **yii2-iro** just like you would use any other a [`InputWidget`](https://www
 	...
         
 
-To render **yii2-iro** outside of an `ActiveForm` we could use:
+To render **yii2-iro** outside of an `ActiveForm` we could use something like:
 
 	<?php
 	use sjaakp\iro\IroWidget;
@@ -60,25 +60,23 @@ To render **yii2-iro** outside of an `ActiveForm` we could use:
     <?= IroWidget::widget([
         'name' => 'iro',
         'value' => '#00ff00',
-        'modal' => false
+        'popup' => false
+        // ...
     ]) ?>;
 	...
 
 
 ## Options ##
 
-The **yii2-iro** widget has the following options:
+The **yii2-iro** widget has all the options of a [`InputWidget`](https://www.yiiframework.com/doc/api/2.0/yii-widgets-inputwidget "Yii Framework"),
+ plus the following:
 
 #### clientOptions ####
 
 `array` Options for the underlying [**iro.js** color picker](https://iro.js.org/guide.html#color-picker-options).
-If you want to change width, use the widget's own `$width` option. Default: `[]`.
+ Default: `[]`.
 
-#### width ####
-
-`integer` Width of the **iro.js** color picker in `px`. Default: `300`.
-
-#### modal ####
+#### popup ####
 
 `boolean` Determines the appearance of the **yii2-iro** widget.
 

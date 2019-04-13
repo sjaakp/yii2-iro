@@ -12,40 +12,27 @@
  * @link https://iro.js.org/
  */
 
-
 namespace sjaakp\iro;
 
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\widgets\InputWidget;
-use yii\bootstrap\Modal;
 
 class IroWidget extends InputWidget
 {
     /**
      * Options for the iro.js color picker
-     * If you want to change width, use the widget's $width
      * @link https://iro.js.org/guide.html#color-picker-options
      * @var array
      */
     public $clientOptions = [];
 
     /**
-     * @var int width of the iro color picker in pixels
-     */
-    public $width = 300;
-
-    /**
      * @var bool
      *  - false the color picker appears inline
      *  - true  the color picker appears in a modal dialog
      */
-    public $modal = true;
-
-    /**
-     * @var array position of modal relative to the viewport
-     */
-    public $position = [ 'left' => '4em', 'top' => '6em'];
+    public $popup = true;
 
     /**
      * @var string can be 'hexString', 'rgb', 'rgbString', 'hsl', 'hslString', or 'hsv'
@@ -63,75 +50,83 @@ class IroWidget extends InputWidget
         $asset = new IroAsset();
         $asset->register($view);
 
-        $id = $this->getId();
-        $this->options['id'] = $id;
+        // InputWidget::init() has set options['id'] if the user didn't
+        $id = $this->options['id'];
 
-        $w = $this->width + 40;
+        $iroOptions = Json::htmlEncode(array_merge($this->clientOptions, [
+            'color' => $this->hasModel() ? $this->model->getAttribute($this->attribute) : $this->value
+        ]));
 
-        $view->registerCss("
-        .iro-modal {
-            left: {$this->position['left']};
-            top: {$this->position['top']};
-            right: auto;
-            bottom: auto;
-        }
-        .iro-modal .modal-dialog {
-            width: {$w}px;
-        }
-        .iro-modal .modal-body {
-            display: flex;
-            justify-content: center;
+        $view->registerJs("var {$id}_ = installIro('$id', $iroOptions, '{$this->colorFormat}');");
+
+        if ($this->popup)   {
+            $view->registerAssetBundle('yii\bootstrap\BootstrapPluginAsset');
+
+            $view->registerCss('
+        .iro-dialog {
+            margin-top: 6em;
         }
         .iro-btn {
+            position: relative;
             width: 4em;
             height: 2em;
             cursor: pointer;
         }
-        ");
+        .iro-btn::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: url(data:image/gif;base64,R0lGODlhEAAQAKEAAISChPz+/P///wAAACH5BAEAAAIALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7);
+            z-index: -1;
+        }
+        .modal-backdrop.in {
+            opacity: 0;
+        }
+        ');
 
-        $iroOptions = Json::htmlEncode(array_merge($this->clientOptions, [
-            'width' => $this->width,
-            'color' => $this->value
-        ]));
+            $width = ($this->clientOptions['width'] ?? 300) + 32;
 
-        $view->registerJs('function colBtn(id, c) {
-            let btn = document.getElementById(id);
-            if (btn) btn.style.backgroundColor = c;
-        }');
+/*            $closeButton = Html::tag('button', '&times;', [
+                'class' => 'close',
+                'data-dismiss' => 'modal',
+                'aria-hidden' => 'true',
+                'type' => 'button'
+            ]);*/
+            $headerContent = /*$closeButton . "\n" . */Html::tag('label', $this->hasModel() ? $this->attribute : $this->name, ['class' => '']);
+            $header = Html::tag('div', "\n" . $headerContent . "\n", ['class' => 'modal-header']);
+            $bodyContent = Html::tag('div', '', ['id' => $id . '-iro']);
+            $body = Html::tag('div', "\n" . $bodyContent . "\n", [
+                'class' => 'modal-body',
+                'style' => 'display:flex;justify-content:center;'
+            ]);
+            $modalContent = Html::tag('div', "\n" . $header . "\n" . $body . "\n", ['class' => 'modal-content']);
+            $modalDialog = Html::tag('div', "\n" . $modalContent . "\n", [
+                'class' => 'modal-dialog iro-dialog',
+                'style' => "width:{$width}px;"
+            ]);
+            $modal = Html::tag('div', "\n" . $modalDialog . "\n", [
+                'class' => 'modal fade',
+                'id' => $id . '-dlg',
+                'role' => 'dialog',
+                'tabindex' => -1
+            ]);
 
-        $view->registerJs("
-        colBtn('{$id}-btn', document.getElementById('{$id}').value);
-        var {$id}_ = new iro.ColorPicker('#{$id}-iro', $iroOptions).on('color:change', function(col, changes) {
-            console.log(this, col, changes);
-         
-            document.getElementById('{$id}').value = col.{$this->colorFormat};
-            
-            colBtn('{$id}-btn', col.hexString);
-            });
-        ");
-
-        if ($this->modal)   {
-            Modal::begin([
-                'options' => [
-                    'class' => 'iro-modal'
-                ],
-                'toggleButton' => [
-                    'tag' => 'div',
-                    'label' => '',
-                    'class' => 'form-control iro-btn',
-                    'id' => $id . '-btn'
-                ],
-                'size' => Modal::SIZE_SMALL,
-                'header' => $this->hasModel() ? $this->model->attributeLabel($this->attribute) : $this->name
+            $r = $modal . "\n" . Html::tag('div', '', [
+                'class' => 'form-control iro-btn',
+                'id' => $id . '-btn',
+                'data-toggle' => 'modal',
+                'data-target' => '#' . $id . '-dlg'
             ]);
         }
+        else    {
+            $r = Html::tag('div', '', ['id' => $id . '-iro']);
+        }
 
-        echo Html::tag('div', '', ['id' => $id . '-iro']) . "\n";
-
-        if ($this->modal) Modal::end();
-
-        $r = $this->hasModel() ? Html::activeHiddenInput($this->model, $this->attribute, $this->options)
-            : Html::hiddenInput($this->name, $this->value, $this->options);
+        $r .= "\n" . ($this->hasModel() ? Html::activeHiddenInput($this->model, $this->attribute, $this->options)
+            : Html::hiddenInput($this->name, $this->value, $this->options)) . "\n";
 
         return $r;
     }

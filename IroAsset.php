@@ -18,6 +18,15 @@ use yii\web\AssetBundle;
 
 class IroAsset extends AssetBundle
 {
-    public $js = ['https://cdn.jsdelivr.net/npm/@jaames/iro/dist/iro.min.js'];
-    public $depends = ['yii\web\JqueryAsset'];
+    public $js = [
+        '//cdn.jsdelivr.net/npm/@jaames/iro/dist/iro.min.js',
+        '//cdn.jsdelivr.net/npm/iro-transparency-plugin/dist/iro-transparency-plugin.min.js',
+        'iro-helper.js'
+    ];
+    public $depends = ['yii\bootstrap\BootstrapPluginAsset'];
+    public function init()    {
+        parent::init();
+
+        $this->sourcePath = __DIR__ . DIRECTORY_SEPARATOR . 'assets';
+    }
 }
