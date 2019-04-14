@@ -47,8 +47,12 @@ class IroWidget extends InputWidget
     {
         $view = $this->getView();
 
-        $asset = new IroAsset();
+        $transparency = $this->clientOptions['transparency'] ?? false;
+
+        $asset = $transparency ? new IroTransparencyAsset() : new IroAsset();
         $asset->register($view);
+
+        if ($transparency) $view->registerJs('iro.use(iroTransparencyPlugin);');
 
         // InputWidget::init() has set options['id'] if the user didn't
         $id = $this->options['id'];
@@ -57,35 +61,17 @@ class IroWidget extends InputWidget
             'color' => $this->hasModel() ? $this->model->getAttribute($this->attribute) : $this->value
         ]));
 
-        $view->registerJs("var {$id}_ = installIro('$id', $iroOptions, '{$this->colorFormat}');");
+        $varName = str_replace('-', '_', $id) . '_';
+        $view->registerJs("var $varName = installIro('$id', $iroOptions, '{$this->colorFormat}');");
 
         if ($this->popup)   {
-            $view->registerAssetBundle('yii\bootstrap\BootstrapPluginAsset');
-
             $view->registerCss('
-        .iro-dialog {
-            margin-top: 6em;
-        }
-        .iro-btn {
-            position: relative;
-            width: 4em;
-            height: 2em;
-            cursor: pointer;
-        }
-        .iro-btn::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: url(data:image/gif;base64,R0lGODlhEAAQAKEAAISChPz+/P///wAAACH5BAEAAAIALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7);
-            z-index: -1;
-        }
-        .modal-backdrop.in {
-            opacity: 0;
-        }
-        ');
+.iro-dialog{margin-top:6em;}
+.iro-btn{position:relative;width:4em;height:2em;cursor:pointer;}
+.iro-btn::before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:-1;
+  background:url(data:image/gif;base64,R0lGODlhEAAQAKEAAISChPz+/P///wAAACH5BAEAAAIALAAAAAAQABAAAAIfhG+hq4jM3IFLJhoswNly/XkcBpIiVaInlLJr9FZWAQA7);}
+.modal-backdrop.in,.modal-backdrop.show{opacity:0;}
+');
 
             $width = ($this->clientOptions['width'] ?? 300) + 32;
 

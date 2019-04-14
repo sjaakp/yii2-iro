@@ -7,7 +7,6 @@ function colBtn(idBtn, color) {
 function installIro(id, opts, colorFormat)
 {
     colBtn( id + '-btn', opts.color);
-    iro.use(iroTransparencyPlugin);
     let r = new iro.ColorPicker('#' + id + '-iro', opts);
     r.on('color:change', function(col, changes) {
         document.getElementById(id).value = col[colorFormat];
