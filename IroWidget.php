@@ -81,7 +81,8 @@ class IroWidget extends InputWidget
                 'aria-hidden' => 'true',
                 'type' => 'button'
             ]);*/
-            $headerContent = /*$closeButton . "\n" . */Html::tag('label', $this->hasModel() ? $this->attribute : $this->name, ['class' => '']);
+            $headerContent = /*$closeButton . "\n" . */Html::tag('label', $this->hasModel() ?
+                $this->model->getAttributeLabel($this->attribute) : $this->name, ['class' => '']);
             $header = Html::tag('div', "\n" . $headerContent . "\n", ['class' => 'modal-header']);
             $bodyContent = Html::tag('div', '', ['id' => $id . '-iro']);
             $body = Html::tag('div', "\n" . $bodyContent . "\n", [
