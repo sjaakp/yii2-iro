@@ -1,8 +1,8 @@
 <?php
 /**
  * MIT licence
- * Version 1.0
- * Sjaak Priester, Amsterdam 11-04-2019.
+ * Version 1.1
+ * Sjaak Priester, Amsterdam 11-04-2019...23-04-2021.
  *
  * IroWidget Widget for Yii 2.0
  *
@@ -19,7 +19,7 @@ use yii\web\AssetBundle;
 class IroAsset extends AssetBundle
 {
     public $js = [
-        '//cdn.jsdelivr.net/npm/@jaames/iro/dist/iro.min.js',
+        '//cdn.jsdelivr.net/npm/@jaames/iro@5'
     ];
     public function init()    {
         parent::init();

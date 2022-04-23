@@ -1,8 +1,8 @@
 <?php
 /**
  * MIT licence
- * Version 1.0
- * Sjaak Priester, Amsterdam 11-04-2019.
+ * Version 1.1
+ * Sjaak Priester, Amsterdam 11-04-2019 ... 23-04-2021.
  *
  * IroWidget Widget for Yii 2.0
  *
@@ -16,6 +16,7 @@ namespace sjaakp\iro;
 
 use yii\helpers\Html;
 use yii\helpers\Json;
+use yii\web\JsExpression;
 use yii\widgets\InputWidget;
 
 class IroWidget extends InputWidget
@@ -35,6 +36,12 @@ class IroWidget extends InputWidget
     public $popup = true;
 
     /**
+     * @var bool
+     *  - whether an opacity slider is provided or not
+     */
+    public $opacity = false;
+
+    /**
      * @var string can be 'hexString', 'rgb', 'rgbString', 'hsl', 'hslString', or 'hsv'
      * @link https://iro.js.org/guide.html#selected-color-api
      */
@@ -47,22 +54,32 @@ class IroWidget extends InputWidget
     {
         $view = $this->getView();
 
-        $transparency = $this->clientOptions['transparency'] ?? false;
-
-        $asset = $transparency ? new IroTransparencyAsset() : new IroAsset();
-        $asset->register($view);
-
-        if ($transparency) $view->registerJs('iro.use(iroTransparencyPlugin);');
-
-        // InputWidget::init() has set options['id'] if the user didn't
+        IroAsset::register($view);
         $id = $this->options['id'];
+
+        if ($this->opacity)   {
+            $this->clientOptions['layout'] = [
+                [
+                    'component' => new JsExpression('iro.ui.Wheel'),
+                ],
+                [
+                    'component' => new JsExpression('iro.ui.Slider'),
+                ],
+                [
+                    'component' => new JsExpression('iro.ui.Slider'),
+                    'options' => [
+                        'sliderType' => 'alpha'
+                    ]
+                ],
+            ];
+        }
 
         $iroOptions = Json::htmlEncode(array_merge($this->clientOptions, [
             'color' => $this->hasModel() ? $this->model->getAttribute($this->attribute) : $this->value
         ]));
 
         $varName = str_replace('-', '_', $id) . '_';
-        $view->registerJs("var $varName = installIro('$id', $iroOptions, '{$this->colorFormat}');");
+        $view->registerJs("var $varName = installIro('$id', $iroOptions, '{$this->colorFormat}')");
 
         if ($this->popup)   {
             $view->registerCss('
@@ -75,14 +92,14 @@ class IroWidget extends InputWidget
 
             $width = ($this->clientOptions['width'] ?? 300) + 32;
 
-/*            $closeButton = Html::tag('button', '&times;', [
+            $closeButton = Html::tag('button', '&times;', [
                 'class' => 'close',
                 'data-dismiss' => 'modal',
                 'aria-hidden' => 'true',
                 'type' => 'button'
-            ]);*/
-            $headerContent = /*$closeButton . "\n" . */Html::tag('label', $this->hasModel() ?
-                $this->model->getAttributeLabel($this->attribute) : $this->name, ['class' => '']);
+            ]);
+            $headerContent = Html::tag('label', $this->hasModel() ?
+                $this->model->getAttributeLabel($this->attribute) : $this->name, ['class' => '']) . "\n" . $closeButton;
             $header = Html::tag('div', "\n" . $headerContent . "\n", ['class' => 'modal-header']);
             $bodyContent = Html::tag('div', '', ['id' => $id . '-iro']);
             $body = Html::tag('div', "\n" . $bodyContent . "\n", [

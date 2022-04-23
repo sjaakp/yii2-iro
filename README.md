@@ -3,6 +3,10 @@ yii2-iro
 
 #### Color picker widget for Yii2 ####
 
+[![Latest Stable Version](https://poser.pugx.org/sjaakp/yii2-iro/v/stable)](https://packagist.org/packages/sjaakp/yii2-iro)
+[![Total Downloads](https://poser.pugx.org/sjaakp/yii2-iro/downloads)](https://packagist.org/packages/sjaakp/yii2-iro)
+[![License](https://poser.pugx.org/sjaakp/yii2-iro/license)](https://packagist.org/packages/sjaakp/yii2-iro)
+
 **yii2-iro** is a widget to choose a color. You can use it in an `ActiveForm` 
 like any other `InputWidget` in the [Yii 2.0](https://www.yiiframework.com/ "Yii") PHP Framework.
 
@@ -43,7 +47,7 @@ Use **yii2-iro** just like you would use any other a [`InputWidget`](https://www
     
         <?= $form->field($model, 'name') ?>
         
-        <?= $form->field($model, 'favourite_color')->widget() ?>
+        <?= $form->field($model, 'favourite_color')->widget(IroWidget::class, [ /* ...options... */ ]) ?>
         ?>
         ...
 	
@@ -86,8 +90,12 @@ The **yii2-iro** widget has all the options of a [`InputWidget`](https://www.yii
 
 Default: `true`.
 
+#### opacity ####
+
+`boolean` Determines whether or not an opacity (alpha) slider will be provided.
+
 #### colorFormat ####
 
-`string` One of the [color formats](https://iro.js.org/guide.html#selected-color-api) available to the **iro.js** color picker.
+`string` One of the [color formats](https:https://iro.js.org/color_api.html#supported-color-formats) available to the **iro.js** color picker.
 Default: `'hexString'`.
 

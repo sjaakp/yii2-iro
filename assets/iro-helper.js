@@ -11,7 +11,7 @@ function installIro(id, opts, colorFormat)
     r.on('color:change', function(col, changes) {
         document.getElementById(id).value = col[colorFormat];
 
-        colBtn(id + '-btn', r.state.transparency ? col.hex8String : col.hexString);
+        colBtn(id + '-btn', col.hex8String);
     });
     return r;
 }
